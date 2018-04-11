@@ -1,7 +1,6 @@
 from servosix import ServoSix
 import time
 
-import time
 import math
 import numpy as np
 import datetime
