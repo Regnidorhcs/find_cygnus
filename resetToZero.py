@@ -61,10 +61,6 @@ while i <2:
     position_servo1 =(pi-FNrange(azim+correction))*degs
     position_servo2 =(2*pi-FNrange(azim+correction))*degs
 
-
-    print altit, azim
-    print position_servo1, position_servo1
-
     if FNrange(azim+correction) < pi:
         ss.set_servo(2, altit*degs)
         ss.set_servo(1, position_servo1)
