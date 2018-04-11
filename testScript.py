@@ -1,10 +1,13 @@
 from servosix import ServoSix
 import time
-
-import math
 import numpy as np
+import math
+import FaBo9Axis_MPU9250
+import time
+import sys
 import datetime
-from servosix import ServoSix
+mpu9250 = FaBo9Axis_MPU9250.MPU9250()
+
 ss = ServoSix()
 
 # a bunch of constants
@@ -21,6 +24,29 @@ now = datetime.datetime.utcnow()
 year=now.year
 month=now.month
 day=now.day
+
+    
+mx=0
+my=0
+averageN=0
+while averageN<20:
+    mag = mpu9250.readMagnet()
+    mx += mag['x'] 
+    my += mag['y']
+    averageN+=1
+    time.sleep(0.1)
+
+if (mx>0 and my>0):
+    north=math.atan(mx/my)
+elif (mx>0 and my<0):
+    north=pi/2.+math.atan(-my/mx)
+elif (mx<0 and my<0):
+    north=pi+math.atan(mx/my)
+else:
+    north=2.*pi-math.atan(-mx/my)
+north=20.*pi/40.-north
+correction=north
+
 
 for i in range(1,241):
     hour=i/10.
@@ -109,7 +135,6 @@ for i in range(1,241):
 
     # print "time = ", year, month ,day ,hour
 
-    correction=0
     position_servo1 =(pi-FNrange(azim+correction))*degs
     position_servo2 =(2*pi-FNrange(azim+correction))*degs
 
@@ -124,6 +149,3 @@ for i in range(1,241):
     #print "pos_se2",position_servo2
 
     time.sleep(0.1)
-
-
-

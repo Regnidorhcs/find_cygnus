@@ -24,41 +24,70 @@ def FNrange (x):
 pi=np.pi
 degs = 180.0/pi
 
+#correction=0
+#position_servo1 =(pi+correction)*degs
 
-mag = mpu9250.readMagnet()
-mx = mag['x'] 
-my = mag['y']
-mz = mag['z'] 
+    
+mx=0
+my=0
+averageN=0
+while averageN<20:
+    mag = mpu9250.readMagnet()
+    mx += mag['x'] 
+    my += mag['y']
+    averageN+=1
+    time.sleep(0.1)
 
-azim = math.atan2(my,mx)
-azim = FNrange(-azim)
-
-print azim*degs
-
-
-correction=0
-position_servo1 =(pi+correction)*degs
-
-
-#
-ss = ServoSix()
-ss.set_servo(1,position_servo1)
-ss.set_servo(2,0)
-
-
-
-
-
-# for j in range (1,181):
-# 	ss.set_servo(1,j)
-#         ss.set_servo(2,j)
-# 	print j, "degrees"
-# 	time.sleep(0.3)
-# for i in range (1,181):
-#         ss.set_servo(1,180-i)
-#         ss.set_servo(2,180-i)
-#         print i, "degrees"
-#         time.sleep(0.3)
+if (mx>0 and my>0):
+    north=math.atan(mx/my)
+elif (mx>0 and my<0):
+    north=pi/2.+math.atan(-my/mx)
+elif (mx<0 and my<0):
+    north=pi+math.atan(mx/my)
+else:
+    north=2.*pi-math.atan(-mx/my)
+north=20.*pi/40.-north
+correction=north
 
 
-#Test range of motions
+i=0
+while i <2:
+
+
+    altit=pi/4
+    azim=0
+    ss = ServoSix()
+
+    position_servo1 =(pi-FNrange(azim+correction))*degs
+    position_servo2 =(2*pi-FNrange(azim+correction))*degs
+
+
+    print altit, azim
+    print position_servo1, position_servo1
+
+    if FNrange(azim+correction) < pi:
+        ss.set_servo(2, altit*degs)
+        ss.set_servo(1, position_servo1)
+    else:
+        ss.set_servo(2, (pi-altit) * degs)
+        ss.set_servo(1, position_servo2)
+    
+    pointer=0
+    while pointer <4:
+	altit+=pi/16
+        if FNrange(azim+correction) < pi:
+            ss.set_servo(2, altit*degs)
+        else:
+            ss.set_servo(2, (pi-altit) * degs)
+	time.sleep(0.5)
+        pointer+=1
+    pointer=0
+    while pointer <4:
+	altit-=pi/16
+        if FNrange(azim+correction) < pi:
+            ss.set_servo(2, altit*degs)
+        else:
+            ss.set_servo(2, (pi-altit) * degs)
+	time.sleep(0.5)
+        pointer+=1
+    i+=1
