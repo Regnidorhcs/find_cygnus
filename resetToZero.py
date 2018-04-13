@@ -46,7 +46,7 @@ elif (mx<0 and my<0):
     north=pi+math.atan(mx/my)
 else:
     north=2.*pi-math.atan(-mx/my)
-north=20.*pi/40.-north
+north=15.*pi/40.-north
 correction=north
 
 
