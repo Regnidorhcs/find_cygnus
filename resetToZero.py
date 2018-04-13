@@ -1,10 +1,8 @@
 from servosix import ServoSix
-import time
 import numpy as np
 import math
 import FaBo9Axis_MPU9250
 import time
-import sys
 mpu9250 = FaBo9Axis_MPU9250.MPU9250()
 
 def FNrange (x):
@@ -24,34 +22,31 @@ def FNrange (x):
 pi=np.pi
 degs = 180.0/pi
 
-#correction=0
-#position_servo1 =(pi+correction)*degs
-
-
-mx = 0
-my = 0
-averageN = 0
-while averageN < 20:
-    mag = mpu9250.readMagnet()
-    mx += mag['x']
-    my += mag['y']
-    averageN += 1
-    time.sleep(0.1)
-
-if (mx > 0 and my > 0):
-    north = math.atan(mx / my)
-elif (mx > 0 and my < 0):
-    north = pi / 2. + math.atan(-my / mx)
-elif (mx < 0 and my < 0):
-    north = pi + math.atan(mx / my)
-else:
-    north = 2. * pi - math.atan(-mx / my)
-north = 20. * pi / 40. - north
-correction = north
 
 i=0
 while i <2:
 
+    mx = 0
+    my = 0
+    averageN = 0
+    while averageN < 20:
+        mag = mpu9250.readMagnet()
+        mx += mag['x']
+        my += mag['y']
+        averageN += 1
+        time.sleep(0.1)
+
+    if (mx > 0 and my > 0):
+        north = math.atan(mx / my)
+    elif (mx > 0 and my < 0):
+        north = pi / 2. + math.atan(-my / mx)
+    elif (mx < 0 and my < 0):
+        north = pi + math.atan(mx / my)
+    else:
+        north = 2. * pi - math.atan(-mx / my)
+
+    north = 10. * pi / 40. - north
+    correction = north
 
     altit=pi/4
     azim=0
@@ -69,20 +64,20 @@ while i <2:
     
     pointer=0
     while pointer <4:
-	altit+=pi/16
+        altit+=pi/16
         if FNrange(azim+correction) < pi:
             ss.set_servo(2, altit*degs)
         else:
             ss.set_servo(2, (pi-altit) * degs)
-	time.sleep(0.5)
+        time.sleep(0.5)
         pointer+=1
     pointer=0
     while pointer <4:
-	altit-=pi/16
+        altit-=pi/16
         if FNrange(azim+correction) < pi:
             ss.set_servo(2, altit*degs)
         else:
             ss.set_servo(2, (pi-altit) * degs)
-	time.sleep(0.5)
+        time.sleep(0.5)
         pointer+=1
     i+=1
